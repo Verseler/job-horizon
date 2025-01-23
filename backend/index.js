@@ -21,6 +21,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+const auth = require("./routes/auth.routes");
+app.use("/auth", auth);
 
 const PORT = process.env.PORT || 3000;
 mongoose
