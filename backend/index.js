@@ -27,6 +27,9 @@ app.use("/auth", auth);
 const jobs = require("./routes/jobs.routes");
 app.use("/jobs", jobs);
 
+const bookmarkJobs = require("./routes/bookmarkJobs.routes");
+app.use("/bookmark-jobs", bookmarkJobs);
+
 const PORT = process.env.PORT || 3000;
 mongoose
   .connect(process.env.MONGO_URL)
