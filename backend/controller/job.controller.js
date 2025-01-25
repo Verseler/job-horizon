@@ -11,20 +11,8 @@ module.exports.postJob = async (req, res) => {
   }
 };
 
-module.exports.getJobs = async (req, res) => {
-  try {
-    const jobs = await Job.find().populate(
-      "jobApplications.jobSeekerId",
-      "firstName lastName"
-    ); // Populate job seeker details
-    res.status(200).json(jobs);
-  } catch (err) {
-    console.error("[GET] jobs:", err);
-    res.status(500).json({ message: "Failed to fetch jobs" });
-  }
-};
 
-module.exports.getFilteredJobs = async (req, res) => {
+module.exports.getJobs = async (req, res) => {
   try {
     const {
       datePost,
@@ -33,8 +21,8 @@ module.exports.getFilteredJobs = async (req, res) => {
       salaryType,
       minSalary,
       maxSalary,
-    } = req.params;
-    console.log("params: ", req.params);
+    } = req.query;
+
     const query = {};
 
     // Date filter
@@ -64,13 +52,22 @@ module.exports.getFilteredJobs = async (req, res) => {
     }
 
     // Job type filter
-    if (jobType) query.jobType = jobType;
+    if (jobType) {
+      const jobTypes = jobType.split(",");
+      query.jobType = { $in: jobTypes };
+    }
 
     // Location type filter
-    if (locationType) query.locationType = locationType;
+    if (locationType) {
+      const locationTypes = locationType.split(",");
+      query.locationType = { $in: locationTypes };
+    }
 
     // Salary type filter
-    if (salaryType) query.salaryType = salaryType;
+    if (salaryType) {
+      const salaryTypes = salaryType.split(",");
+      query.salaryType = { $in: salaryTypes };
+    }
 
     // Salary range filter
     if (minSalary || maxSalary) {
@@ -95,6 +92,7 @@ module.exports.getFilteredJobs = async (req, res) => {
   }
 };
 
+
 module.exports.getJob = async (req, res) => {
   try {
     const { id: jobId } = req.params;
@@ -111,6 +109,7 @@ module.exports.getJob = async (req, res) => {
   }
 };
 
+
 module.exports.putJob = async (req, res) => {
   await Job.findByIdAndUpdate(req.params.id, req.body)
     .then((job) => {
@@ -119,6 +118,7 @@ module.exports.putJob = async (req, res) => {
     })
     .catch((err) => res.status(500).json(err));
 };
+
 
 module.exports.deleteJob = async (req, res) => {
   await Job.findByIdAndDelete(req.params.id)
