@@ -47,4 +47,6 @@ export type Step = {
   description?: string;
 };
 
-export type FilterOption = [ "date-post", "job-type", "salary-type", "min-salary", "max-salary", "location-type"]
+export type FilterOptions = Pick<Job, "jobType" | "locationType" | "salaryType" | "maxSalary" | "minSalary"> & {
+  datePost: "this-week" | "this-month" | "this-year" | "today" | "this-3days";
+};

@@ -17,52 +17,44 @@ import {
   SelectValue,
   SelectGroup,
 } from "@/components/ui/Select";
-import { FilterOption, Job, useGetFilteredJobsQuery, } from "@/features/job";
+import { FilterOptions, Job, MAX_SALARY, MIN_SALARY } from "@/features/job";
 import { Input } from "@/components/ui/Input";
 
-const MIN_SALARY = 0;
-const MAX_SALARY = 1_000_000;
-
 const data: {
-  filterOptionKeys: FilterOption;
+  filterOptionKeys: Array<keyof FilterOptions>;
   jobType: Array<Job["jobType"]>;
   salaryType: Array<Job["salaryType"]>;
   locationType: Array<Job["locationType"]>;
 } = {
   filterOptionKeys: [
-    "date-post",
-    "job-type",
-    "salary-type",
-    "min-salary",
-    "max-salary",
-    "location-type",
+    "datePost",
+    "jobType",
+    "salaryType",
+    "minSalary",
+    "maxSalary",
+    "locationType",
   ],
   jobType: ["full-time", "part-time", "freelance", "internship"],
   salaryType: ["daily", "monthly", "weekly", "single-payment", "semi-monthly"],
   locationType: ["onsite", "remote", "hybrid"],
 };
 
-//TODO: add types. But make sure to change the job types. make it consistence. use lowercase
-export default function JobFilterControls() {
+type JobFilterControlsProps = {
+  refetch: () => void;
+  isLoading: boolean;
+};
+
+export default function JobFilterControls({ refetch, isLoading }: JobFilterControlsProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const datePost = searchParams.get("date-post") ?? "";
-  const jobType = searchParams.get("job-type") ?? "";
-  const locationType = searchParams.get("location-type") ?? "";
-  const salaryType = searchParams.get("salary-type") ?? "";
-  const minSalary = Number(searchParams.get("min-salary") ?? MIN_SALARY);
-  const maxSalary = Number(searchParams.get("max-salary") ?? MAX_SALARY);
+  const datePost = searchParams.get("datePost") ?? "";
+  const salaryType = searchParams.get("salaryType") ?? "";
+  const minSalary = Number(searchParams.get("minSalary") ?? MIN_SALARY);
+  const maxSalary = Number(searchParams.get("maxSalary") ?? MAX_SALARY);
   const [salaryValue, setSalaryValue] = useState([minSalary, maxSalary]);
-  const { refetch } = useGetFilteredJobsQuery({
-    datePost,
-    jobType,
-    locationType,
-    minSalary,
-    maxSalary,
-  });
 
   function handleSubmitJobFilter(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-  
+
     refetch();
   }
 
@@ -71,8 +63,8 @@ export default function JobFilterControls() {
     () =>
       debounce((newValues: number[]) => {
         setSearchParams((params) => {
-          params.set("min-salary", String(newValues[0]));
-          params.set("max-salary", String(newValues[1]));
+          params.set("minSalary", String(newValues[0]));
+          params.set("maxSalary", String(newValues[1]));
           return params;
         });
       }, 300),
@@ -124,7 +116,7 @@ export default function JobFilterControls() {
             value={datePost ?? ""}
             onValueChange={(value) =>
               setSearchParams((params) => {
-                params.set("date-post", value);
+                params.set("datePost", value);
                 return params;
               })
             }
@@ -147,7 +139,7 @@ export default function JobFilterControls() {
 
         <div className="space-y-1.5">
           <h2 className="text-sm font-medium">Job Type</h2>
-          <CheckboxGroup typeKey="job-type" options={data.jobType} />
+          <CheckboxGroup typeKey="jobType" options={data.jobType} />
         </div>
         <Separator className="mb-5 mt-7" />
 
@@ -158,7 +150,7 @@ export default function JobFilterControls() {
             value={salaryType ?? ""}
             onValueChange={(value) =>
               setSearchParams((params) => {
-                params.set("salary-type", value);
+                params.set("salaryType", value);
                 return params;
               })
             }
@@ -210,7 +202,7 @@ export default function JobFilterControls() {
                   <Input
                     type="number"
                     inputMode="numeric"
-                    id="min-salary"
+                    id="minSalary"
                     className="text-xs w-[7.5rem] ps-[3.2rem] pe-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     value={salaryValue[0]}
                     min={MIN_SALARY}
@@ -234,7 +226,7 @@ export default function JobFilterControls() {
                     <Input
                       type="number"
                       inputMode="numeric"
-                      id="max-salary"
+                      id="maxSalary"
                       className="text-xs w-[7.5rem] ps-[3.2rem] pe-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       value={salaryValue[1]}
                       min={MIN_SALARY}
@@ -256,12 +248,13 @@ export default function JobFilterControls() {
 
         <div className="space-y-1.5">
           <h2 className="text-sm font-medium">Location Type</h2>
-          <CheckboxGroup typeKey="location-type" options={data.locationType} />
+          <CheckboxGroup typeKey="locationType" options={data.locationType} />
         </div>
         <Separator className="mb-5 mt-7" />
 
         <Button
           type="submit"
+          disabled={isLoading}
           className="w-full bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-400"
         >
           Apply

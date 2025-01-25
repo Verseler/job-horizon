@@ -1,50 +1,29 @@
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { CreateJobForm, FilterOption, Job } from "@/features/job/job.types";
+import type { CreateJobForm, Job } from "@/features/job";
 
 axios.defaults.withCredentials = true;
 
 //* Get All Jobs
-const getJobs = () => axios
-.get<Array<Job>>(`${import.meta.env.VITE_BACKEND_BASE_URL}/jobs`)
-.then(res => res.data)
-.catch(err => {
-  throw err
-})
+const getJobs = async () => {
+  const queryParams = new URLSearchParams(window.location.search).toString();
 
-export const useGetJobsQuery = () => useQuery({
-  queryKey: ["jobs"],
-  queryFn: getJobs,
-});
-
-
-//* filtered Jobs
-// const getFilteredJobs = (filterOptions) => axios
-// .get(`${import.meta.env.VITE_BACKEND_BASE_URL}/jobs`, filterOptions)
-// .then(res => res.data)
-// .catch(err => {
-//   throw err
-// })
-
-export const useGetFilteredJobsQuery = (filterOptions: any) => { //!temporary any type
-  const queryClient = useQueryClient();
- 
-  return useQuery({
-  queryKey: ["filtered-jobs"],
-  queryFn: () => axios
-  .get(`${import.meta.env.VITE_BACKEND_BASE_URL}/jobs/${JSON.stringify(filterOptions)}`)
+  return axios
+  .get<Array<Job>>(`${import.meta.env.VITE_BACKEND_BASE_URL}/jobs?${queryParams}`)
   .then(res => res.data)
   .catch(err => {
     throw err
-  }),
-  select:(data) => {
-    console.log("1")
-    queryClient.setQueryData(["jobs"], data); // Update the "jobs" cache with the filtered jobs value
-  },
-  refetchOnWindowFocus: false,
-  enabled: false
-})}
+  })
+}
+
+export const useGetJobsQuery = () => {
+
+  return useQuery({
+    queryKey: ["jobs"],
+    queryFn: getJobs,
+  })
+}
 
 
 export const createJob = (form: CreateJobForm) => axios

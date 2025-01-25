@@ -12,6 +12,9 @@ export * from "@/features/job/jobApi";
 
 export * from "@/features/job/job.helper";
 
+export * from "@/features/job/const";
+
 export type * from "@/features/job/job.types";
+
 
 
