@@ -21,8 +21,9 @@ export default function FindJobsPage() {
     selectedJobId,
   } = useViewJobModal();
 
-  const { data: jobs, isLoading } = useGetJobsQuery();
 
+  const { data: jobs, isLoading, refetch } = useGetJobsQuery();
+  
   const selectedJob = jobs?.find((job: Job) => job._id === selectedJobId);
 
   function handleApplyToJob() {
@@ -47,7 +48,7 @@ export default function FindJobsPage() {
 
       <section className="py-4">
         <CenterContainer className="flex items-start gap-3">
-          <JobFilterControls />
+          <JobFilterControls refetch={refetch} isLoading={isLoading} />
 
           <div className="flex-1">
             <JobSearchBox />

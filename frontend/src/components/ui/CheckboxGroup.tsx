@@ -1,16 +1,19 @@
 import { useSearchParams } from "react-router";
 
 import { Checkbox } from "@/components/ui/Checkbox";
-import { capitalize } from "@/lib/utils";
+import { capitalize, cn } from "@/lib/utils";
+import React from "react";
 
 type CheckboxGroupProps = {
   options: Array<string>;
   typeKey: string;
+  className?: React.HtmlHTMLAttributes<HTMLDivElement>["className"];
 };
 
 export default function CheckboxGroup({
   options,
   typeKey,
+  className,
 }: CheckboxGroupProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const typeParams = searchParams.get(typeKey);
@@ -23,6 +26,17 @@ export default function CheckboxGroup({
       selectedTypes.delete(option);
     }
     updateSearchParams();
+
+    if (selectedTypes.size <= 0) {
+      removeParamInUrl();
+    }
+  }
+
+  function removeParamInUrl() {
+    setSearchParams((params) => {
+      params.delete(typeKey);
+      return params;
+    });
   }
 
   function updateSearchParams() {
@@ -33,7 +47,7 @@ export default function CheckboxGroup({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-1.5">
+    <div className={cn("grid grid-cols-2 gap-1.5", className)}>
       {options.map((option) => {
         const optionIsChecked = Array.from(selectedTypes).includes(option);
         const optionLabel = capitalize(option);
