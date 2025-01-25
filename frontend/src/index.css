@@ -2,13 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-   width: 100vw;
-   overflow-x: hidden;
-}
-
 body {
   font-family: "Poppins", serif;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
 @layer base {
