@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const jobController = require("../controller/job.controller");
 
-router.post("/", jobController.postJob);
+router.get("/search", jobController.searchJob);
 router.get("/", jobController.getJobs);
+router.post("/", jobController.postJob);
 router
   .route("/:id")
   .get(jobController.getJob)

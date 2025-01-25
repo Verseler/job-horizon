@@ -11,6 +11,21 @@ module.exports.postJob = async (req, res) => {
   }
 };
 
+module.exports.searchJob = async (req, res) => {
+  try {
+    const { search } = req.query;
+    
+    const jobs = await Job.find({ title: new RegExp(`\\b${search}`, 'i') });
+    
+    if (!jobs) {
+       return res.status(400).json({ error: "No job found" });
+    }
+    res.status(200).json(jobs);
+  } catch (err) {
+    console.error("[SEARCH] job error: ", err);
+    res.status(500).json({ message: "Failed to search job" });
+  }
+};
 
 module.exports.getJobs = async (req, res) => {
   try {
@@ -84,14 +99,13 @@ module.exports.getJobs = async (req, res) => {
       "jobApplications.jobSeekerId",
       "firstName lastName"
     );
-    //console.log(filteredJobs);
+
     res.status(200).json(filteredJobs);
   } catch (err) {
     console.log("[GET] filtered jobs: ", err);
     res.status(500).json({ message: "Failed to fetch jobs" });
   }
 };
-
 
 module.exports.getJob = async (req, res) => {
   try {
@@ -109,7 +123,6 @@ module.exports.getJob = async (req, res) => {
   }
 };
 
-
 module.exports.putJob = async (req, res) => {
   await Job.findByIdAndUpdate(req.params.id, req.body)
     .then((job) => {
@@ -118,7 +131,6 @@ module.exports.putJob = async (req, res) => {
     })
     .catch((err) => res.status(500).json(err));
 };
-
 
 module.exports.deleteJob = async (req, res) => {
   await Job.findByIdAndDelete(req.params.id)
