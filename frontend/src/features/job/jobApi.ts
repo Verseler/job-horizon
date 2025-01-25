@@ -17,13 +17,44 @@ const getJobs = async () => {
   })
 }
 
-export const useGetJobsQuery = () => {
+export const useGetJobsQuery = () => useQuery({
+  queryKey: ["jobs"],
+  queryFn: getJobs,
+})
 
-  return useQuery({
-    queryKey: ["jobs"],
-    queryFn: getJobs,
+
+//* Search jobs by title
+const searchJobs = async ({ queryKey }: { queryKey: Array<string>}) => {
+  const [_, search] = queryKey;
+
+  return axios
+  .get<Array<Job>>(`${import.meta.env.VITE_BACKEND_BASE_URL}/jobs/search?search=${search}`)
+  .then(res => res.data)
+  .catch(err => {
+    throw err
   })
 }
+
+export const useSearchJobsQuery = (search: string) => {
+  const queryClient = useQueryClient();
+
+ return  useQuery({
+  queryKey: ["searched-jobs", search],
+  queryFn: searchJobs,
+  enabled: false,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+  select: (data) => {
+    console.log("searched jobs: ", data)
+    queryClient.setQueriesData(
+      { queryKey: ["jobs"] },
+      data
+    )
+  }
+})
+}
+  
+ 
 
 
 export const createJob = (form: CreateJobForm) => axios
@@ -36,7 +67,6 @@ export const createJob = (form: CreateJobForm) => axios
 
 
 export const applyJob = async <T,>(form: T) => {
-  console.log("applyJob api: ", form)
   return axios
   .post(`${import.meta.env.VITE_BACKEND_BASE_URL}/job-applications`, form, {
     headers: {

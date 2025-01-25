@@ -1,7 +1,8 @@
-import React from "react";
+import React, { FormEvent, memo } from "react";
 import { useSearchParams } from "react-router";
 import { Search, X } from "lucide-react";
 
+import { useSearchJobsQuery } from "@/features/job";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
@@ -10,14 +11,20 @@ type JobSearchBoxProps = {
   className?: React.HtmlHTMLAttributes<HTMLElement>["children"];
 };
 
-export default function JobSearchBox({ className }: JobSearchBoxProps) {
+function JobSearchBox({ className }: JobSearchBoxProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchValue: string = searchParams.get("search") || "";
+  const { refetch } = useSearchJobsQuery(searchValue);
 
   const handleOnchangeSearch = (e: React.ChangeEvent<HTMLInputElement>) =>
     setSearchParams({ search: e.target.value });
 
   const clearSearch = () => setSearchParams({ search: "" });
+
+  const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    refetch();
+  };
 
   const clearButton = searchValue.length > 0 && (
     <Button
@@ -32,7 +39,7 @@ export default function JobSearchBox({ className }: JobSearchBoxProps) {
 
   return (
     <form
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={handleSearchSubmit}
       className={cn(
         "flex items-center p-3 border rounded-md gap-x-3",
         className
@@ -48,10 +55,15 @@ export default function JobSearchBox({ className }: JobSearchBoxProps) {
         {clearButton}
       </div>
 
-      <Button className="font-normal bg-green-600 hover:bg-green-700 dark:hover:bg-green-400 dark:bg-green-500">
+      <Button
+        type="submit"
+        className="font-normal bg-green-600 hover:bg-green-700 dark:hover:bg-green-400 dark:bg-green-500"
+      >
         <Search />
         Find
       </Button>
     </form>
   );
 }
+
+export default memo(JobSearchBox);
